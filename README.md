@@ -21,7 +21,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
         recyclerView.adapter = adapter
 
         recyclerView.addItemDecoration(StickyHeaderItemDecoration(getSectionCallback()))
-    }
+}
 ```
 이후 Item을 그릴때 마다 해당 아이템이 Header인지 아닌지 호출되며  
 Header인 경우 해당 View를 넘겨준다.  
@@ -36,7 +36,7 @@ private fun getSectionCallback(): StickyHeaderItemDecoration.SectionCallback {
                 return adapter.getHeaderView(list, position)
             }
         }
-    }
+}
 ```
 
 ### Adapter
