@@ -2,6 +2,7 @@ package com.example.sectionlistproduct
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sectionlistproduct.SectionAdapter.Companion.TYPE_ROW
@@ -24,7 +25,13 @@ class MainActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler_view)
 
         recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(StickyHeaderItemDecoration(getSectionCallback()))
+        recyclerView.addItemDecoration(HeaderItemDecoration(recyclerView, false, isHeader = { index ->
+            val adapter = recyclerView.adapter as? SectionAdapter
+            adapter?.isHeader(index) == true
+        }))
+        adapter.headerClickListener = View.OnClickListener {
+            Log.e("TAG","Header click tag : ${it.tag}")
+        }
     }
 
     private fun initFakeData() {
@@ -40,18 +47,6 @@ class MainActivity : AppCompatActivity() {
                     // Row
                     items.add(Pair(TYPE_ROW, i.toString()))
                 }
-            }
-        }
-    }
-
-    private fun getSectionCallback(): StickyHeaderItemDecoration.SectionCallback {
-        return object : StickyHeaderItemDecoration.SectionCallback {
-            override fun isHeader(position: Int): Boolean {
-                return adapter.isHeader(position) ?: false
-            }
-
-            override fun getHeaderLayoutView(list: RecyclerView, position: Int): View? {
-                return adapter.getHeaderView(list, position)
             }
         }
     }

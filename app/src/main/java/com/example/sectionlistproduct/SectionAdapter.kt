@@ -2,6 +2,7 @@ package com.example.sectionlistproduct
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -12,21 +13,24 @@ class SectionAdapter(val items: List<Pair<Int, String>>): RecyclerView.Adapter<S
         const val TYPE_ROW = 2
     }
 
+    var headerClickListener: OnClickListener? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return when(viewType) {
-            TYPE_SECTION -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_section, parent, false)
-                return ViewHolder(view)
-            }
-            else -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_row, parent, false)
-                return ViewHolder(view)
-            }
+        return if(viewType == TYPE_SECTION) {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_section, parent, false)
+            SectionViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_row, parent, false)
+            ViewHolder(view)
         }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position].second)
+        if (holder is SectionViewHolder) {
+            holder.bind(items[position].second, position, headerClickListener)
+        } else {
+            holder.bind(items[position].second)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -38,24 +42,22 @@ class SectionAdapter(val items: List<Pair<Int, String>>): RecyclerView.Adapter<S
     }
 
     fun isHeader(postion: Int) = (getItemViewType(position = postion) == TYPE_SECTION)
-    fun getHeaderView(list: RecyclerView, position: Int): View? {
-        val sliceList = items.slice(0..position)
-        val sectionItem = sliceList.findLast {
-            it.first == TYPE_SECTION
-        }
 
-        val view = LayoutInflater.from(list.context).inflate(R.layout.item_section, list, false)
-        val holder = ViewHolder(view)
-        holder.bind(sectionItem?.second ?: "")
-
-        return view
-    }
-
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    open class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val txtTitle: TextView = itemView.findViewById(R.id.title)
 
-        fun bind(item: String) {
+        open fun bind(item: String) {
             txtTitle.text = item
+        }
+    }
+
+    class SectionViewHolder(view: View) : ViewHolder(view) {
+        private val sectionLayout: ViewGroup = itemView.findViewById(R.id.section_layout)
+
+        fun bind(item: String, index: Int? = null, listener: OnClickListener? = null) {
+            super.bind(item)
+            sectionLayout.tag = index
+            sectionLayout.setOnClickListener(listener)
         }
     }
 }
